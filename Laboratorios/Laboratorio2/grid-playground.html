@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSS Grid Playground — INF560</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:   #1E3A5F;
+    --indigo: #2D5F8A;
+    --teal:   #0F766E;
+    --amber:  #92400E;
+    --light:  #F1F5F9;
+    --slate:  #334155;
+    --muted:  #94A3B8;
+    --white:  #FFFFFF;
+    --code-bg:#0F172A;
+    --code-tx:#E2E8F0;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Syne', sans-serif; background: #0F1923; color: var(--light); min-height: 100vh; }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--navy); border-bottom: 3px solid var(--teal);
+    padding: 1.2rem 2rem; display: flex; align-items: center; gap: 1.5rem;
+  }
+  .header-badge {
+    background: var(--teal); color: #fff; font-family: 'JetBrains Mono', monospace;
+    font-size: .7rem; font-weight: 700; padding: .3rem .7rem; border-radius: 4px;
+    letter-spacing: .08em; text-transform: uppercase; white-space: nowrap;
+  }
+  header h1 { font-size: 1.4rem; font-weight: 800; letter-spacing: -.02em; }
+  header h1 span { color: var(--teal); }
+  .header-sub { margin-left: auto; font-size: .75rem; color: var(--muted); font-family: 'JetBrains Mono', monospace; white-space: nowrap; }
+
+  /* ── LAYOUT ── */
+  .app { display: grid; grid-template-columns: 320px 1fr; min-height: calc(100vh - 70px); }
+
+  /* ── PANEL ── */
+  .panel {
+    background: #151E2D; border-right: 1px solid rgba(255,255,255,.07);
+    overflow-y: auto; max-height: calc(100vh - 70px);
+    position: sticky; top: 70px;
+  }
+  .panel-section { border-bottom: 1px solid rgba(255,255,255,.07); padding: 1rem 1.2rem; }
+  .panel-section-title {
+    font-size: .65rem; font-weight: 700; letter-spacing: .15em; text-transform: uppercase;
+    color: var(--teal); margin-bottom: .85rem; display: flex; align-items: center; gap: .5rem;
+  }
+  .panel-section-title::after { content: ''; flex: 1; height: 1px; background: rgba(15,118,110,.3); }
+
+  .prop-group { margin-bottom: .9rem; }
+  .prop-label { display: flex; align-items: center; justify-content: space-between; margin-bottom: .4rem; }
+  .prop-name  { font-family: 'JetBrains Mono', monospace; font-size: .75rem; color: #7EB3D8; }
+  .prop-value {
+    font-family: 'JetBrains Mono', monospace; font-size: .7rem; color: #F59E0B;
+    background: rgba(245,158,11,.1); padding: .15rem .4rem; border-radius: 3px;
+    min-width: 120px; text-align: right; word-break: break-all;
+  }
+
+  .btn-group { display: flex; flex-wrap: wrap; gap: .35rem; }
+  .btn {
+    font-family: 'JetBrains Mono', monospace; font-size: .68rem; padding: .35rem .6rem;
+    border: 1px solid rgba(255,255,255,.12); border-radius: 4px; background: transparent;
+    color: var(--muted); cursor: pointer; transition: all .15s; white-space: nowrap;
+  }
+  .btn:hover { border-color: var(--teal); color: var(--light); }
+  .btn.active { background: var(--teal); border-color: var(--teal); color: #fff; font-weight: 700; }
+
+  .slider-wrap { display: flex; align-items: center; gap: .6rem; }
+  input[type=range] {
+    flex: 1; -webkit-appearance: none; height: 4px;
+    background: rgba(255,255,255,.1); border-radius: 2px; outline: none;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 14px; height: 14px;
+    border-radius: 50%; background: var(--teal); cursor: pointer;
+  }
+
+  /* text input for custom values */
+  .text-input {
+    width: 100%; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.12);
+    border-radius: 4px; color: #F59E0B; font-family: 'JetBrains Mono', monospace;
+    font-size: .75rem; padding: .4rem .6rem; outline: none; transition: border-color .15s;
+  }
+  .text-input:focus { border-color: var(--teal); }
+
+  /* ITEM SELECTOR */
+  .item-selector { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: .8rem; }
+  .item-sel-btn {
+    font-family: 'JetBrains Mono', monospace; font-size: .68rem; padding: .3rem .55rem;
+    border-radius: 4px; border: 1px solid rgba(255,255,255,.12);
+    background: transparent; color: var(--muted); cursor: pointer; transition: all .15s;
+  }
+  .item-sel-btn:hover { border-color: #F59E0B; color: #F59E0B; }
+  .item-sel-btn.active { background: #92400E; border-color: #92400E; color: #fff; }
+
+  /* ── PREVIEW ZONE ── */
+  .preview-zone { display: flex; flex-direction: column; padding: 2rem; gap: 1.5rem; }
+  .preview-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .8rem; }
+  .preview-title { font-size: .75rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .1em; }
+
+  .items-control {
+    display: flex; align-items: center; gap: .6rem;
+    font-size: .75rem; color: var(--muted); font-family: 'JetBrains Mono', monospace;
+  }
+  .items-control button {
+    width: 28px; height: 28px; border-radius: 50%; border: 1px solid rgba(255,255,255,.15);
+    background: transparent; color: var(--light); font-size: 1rem; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; transition: all .15s;
+  }
+  .items-control button:hover { background: var(--teal); border-color: var(--teal); }
+
+  /* GRID CONTAINER WRAPPER */
+  .grid-container-wrap {
+    background: rgba(255,255,255,.03); border: 2px dashed rgba(255,255,255,.12);
+    border-radius: 10px; padding: 1.5rem; min-height: 280px; position: relative; transition: all .3s;
+  }
+  .grid-lines-label {
+    position: absolute; font-family: 'JetBrains Mono', monospace; font-size: .58rem;
+    color: rgba(255,255,255,.18); pointer-events: none;
+    bottom: .4rem; right: .6rem;
+  }
+
+  #grid-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-auto-rows: minmax(80px, auto);
+    gap: 12px;
+    min-height: 240px;
+    transition: all .3s;
+  }
+
+  .grid-item {
+    border-radius: 6px; display: flex; align-items: center; justify-content: center;
+    font-family: 'JetBrains Mono', monospace; font-size: .8rem; font-weight: 700;
+    color: rgba(255,255,255,.9); padding: .8rem; transition: all .3s;
+    cursor: default; user-select: none; min-height: 60px; position: relative;
+  }
+  .grid-item:nth-child(1)  { background: #2D5F8A; }
+  .grid-item:nth-child(2)  { background: #0F766E; }
+  .grid-item:nth-child(3)  { background: #92400E; }
+  .grid-item:nth-child(4)  { background: #1E3A5F; }
+  .grid-item:nth-child(5)  { background: #475569; }
+  .grid-item:nth-child(6)  { background: #065F46; }
+  .grid-item:nth-child(7)  { background: #7C3AED; }
+  .grid-item:nth-child(8)  { background: #BE123C; }
+  .grid-item.highlighted   { outline: 3px solid #FBBF24; outline-offset: 2px; }
+
+  /* ── CODE BLOCK ── */
+  .code-block {
+    background: var(--code-bg); border-radius: 8px; padding: 1.2rem 1.5rem;
+    font-family: 'JetBrains Mono', monospace; font-size: .78rem; line-height: 1.8;
+    color: var(--code-tx); border: 1px solid rgba(255,255,255,.06);
+    position: relative; overflow-x: auto;
+  }
+  .code-block .selector { color: #7DD3FC; }
+  .code-block .property  { color: #93C5FD; }
+  .code-block .value     { color: #F59E0B; }
+  .code-block .punct     { color: #64748B; }
+  .code-block .comment   { color: #475569; }
+  .copy-btn {
+    position: absolute; top: .7rem; right: .7rem; font-family: 'JetBrains Mono', monospace;
+    font-size: .65rem; padding: .3rem .7rem; border: 1px solid rgba(255,255,255,.15);
+    border-radius: 4px; background: transparent; color: var(--muted); cursor: pointer; transition: all .15s;
+  }
+  .copy-btn:hover { background: var(--teal); color: #fff; border-color: var(--teal); }
+  .copy-btn.copied { background: var(--teal); color: #fff; }
+
+  /* ── TOOLTIP ── */
+  .tooltip-bar {
+    background: rgba(15,118,110,.15); border: 1px solid rgba(15,118,110,.3); border-radius: 6px;
+    padding: .7rem 1rem; font-size: .75rem; color: #7EB3D8;
+    font-family: 'JetBrains Mono', monospace; line-height: 1.6; min-height: 42px;
+    display: flex; align-items: center; gap: .5rem;
+  }
+  .tooltip-bar::before { content: 'ℹ'; font-size: 1rem; }
+
+  /* ── TABS ── */
+  .exercises-header { display: flex; gap: .5rem; flex-wrap: wrap; }
+  .tab {
+    font-family: 'JetBrains Mono', monospace; font-size: .7rem; padding: .45rem 1rem;
+    border: 1px solid rgba(255,255,255,.12); border-radius: 5px;
+    background: transparent; color: var(--muted); cursor: pointer; transition: all .15s;
+  }
+  .tab:hover { color: var(--light); border-color: var(--indigo); }
+  .tab.active { background: var(--indigo); border-color: var(--indigo); color: #fff; font-weight: 700; }
+
+  .exercise-panel { display: none; background: #151E2D; border-radius: 10px; overflow: hidden; border: 1px solid rgba(255,255,255,.06); }
+  .exercise-panel.active { display: block; }
+  .exercise-demo { padding: 1.5rem; background: #0D1520; }
+
+  /* ─ EX1: GALLERY ─ */
+  .demo-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    grid-auto-rows: 120px;
+    gap: .6rem;
+  }
+  .demo-gitem {
+    border-radius: 6px; overflow: hidden; display: flex;
+    align-items: center; justify-content: center;
+    font-size: 1.8rem; transition: transform .3s;
+    background: linear-gradient(135deg, var(--indigo), var(--teal));
+  }
+  .demo-gitem:hover { transform: scale(1.03); }
+  .demo-gitem:nth-child(2n) { background: linear-gradient(135deg, var(--amber), #DC2626); }
+  .demo-gitem:nth-child(3n) { background: linear-gradient(135deg, #065F46, var(--teal)); }
+  .demo-gitem--featured { grid-column: span 2; grid-row: span 2; font-size: 3rem; }
+  .demo-gitem--tall { grid-row: span 2; }
+
+  /* ─ EX2: DASHBOARD ─ */
+  .demo-dashboard {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    grid-template-rows: 48px 1fr;
+    grid-template-areas: "sidebar header" "sidebar content";
+    min-height: 280px; border-radius: 8px; overflow: hidden;
+    font-size: .8rem;
+  }
+  .ddash-header {
+    grid-area: header; background: #1A2535; display: flex;
+    justify-content: space-between; align-items: center;
+    padding: 0 1.2rem; border-bottom: 1px solid rgba(255,255,255,.08);
+    color: var(--light);
+  }
+  .ddash-header span { font-size: .7rem; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
+  .ddash-sidebar { grid-area: sidebar; background: var(--navy); padding: .8rem 0; }
+  .ddash-sidebar ul { list-style: none; }
+  .ddash-sidebar a { display: block; padding: .45rem 1rem; color: #BFD9EC; text-decoration: none; font-size: .75rem; }
+  .ddash-sidebar a:hover { background: rgba(255,255,255,.08); color: #fff; }
+  .ddash-content { grid-area: content; background: #0D1520; padding: 1rem; }
+  .ddash-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: .7rem; }
+  .ddash-card {
+    background: #1A2535; border-radius: 6px; padding: .8rem;
+    border-left: 3px solid var(--indigo);
+  }
+  .ddash-card h3 { font-size: 1.3rem; color: var(--light); }
+  .ddash-card p  { font-size: .68rem; color: var(--muted); margin-top: .15rem; }
+
+  /* ─ EX3: LANDING ─ */
+  .demo-landing {
+    display: grid;
+    grid-template-columns: 1fr min(600px, 90%) 1fr;
+    grid-template-areas: ". nav ." ". hero ." ". features ." "footer footer footer";
+    gap: 0;
+    background: #0D1520;
+    border-radius: 8px; overflow: hidden;
+    font-size: .8rem;
+  }
+  .dl-nav {
+    grid-area: nav; display: flex; justify-content: space-between; align-items: center;
+    padding: .8rem 0; border-bottom: 1px solid rgba(255,255,255,.06);
+  }
+  .dl-nav .logo { font-weight: 800; color: var(--light); font-size: .9rem; }
+  .dl-nav nav { display: flex; gap: 1rem; }
+  .dl-nav a { color: #7EB3D8; text-decoration: none; font-size: .75rem; }
+  .dl-hero { grid-area: hero; text-align: center; padding: 2.5rem 0; }
+  .dl-hero h1 { font-size: 1.6rem; color: var(--light); margin-bottom: .5rem; }
+  .dl-hero p  { color: var(--muted); font-size: .8rem; }
+  .dl-hero button {
+    margin-top: .8rem; padding: .5rem 1.3rem; background: var(--teal); color: #fff;
+    border: none; border-radius: 5px; font-size: .82rem; cursor: pointer;
+    font-family: 'Syne', sans-serif; font-weight: 700;
+  }
+  .dl-features {
+    grid-area: features; display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: .7rem; padding: 1.2rem 0;
+  }
+  .dl-feat {
+    background: #1A2535; border-radius: 6px; padding: .8rem;
+    border-top: 2px solid var(--indigo);
+  }
+  .dl-feat h3 { font-size: .85rem; color: var(--light); margin-bottom: .2rem; }
+  .dl-feat p  { font-size: .7rem; color: var(--muted); }
+  .dl-footer {
+    grid-area: footer; background: var(--navy); color: rgba(255,255,255,.6);
+    text-align: center; padding: .8rem; font-size: .72rem;
+  }
+
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,.1); border-radius: 10px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-badge">INF560</div>
+  <h1><span>CSS Grid</span> Playground</h1>
+  <span class="header-sub">M. Sc. Huáscar Fedor Gonzales Guzmán</span>
+</header>
+
+<div class="app">
+
+  <!-- ════════ PANEL IZQUIERDO ════════ -->
+  <aside class="panel">
+
+    <!-- CONTENEDOR -->
+    <div class="panel-section">
+      <div class="panel-section-title">Contenedor (padre)</div>
+
+      <div class="prop-group">
+        <div class="prop-label">
+          <span class="prop-name">grid-template-columns</span>
+          <span class="prop-value" id="val-cols">repeat(3, 1fr)</span>
+        </div>
+        <div class="btn-group" data-prop="grid-template-columns">
+          <button class="btn" data-val="repeat(2, 1fr)">2 col</button>
+          <button class="btn active" data-val="repeat(3, 1fr)">3 col</button>
+          <button class="btn" data-val="repeat(4, 1fr)">4 col</button>
+          <button class="btn" data-val="200px 1fr">200px 1fr</button>
+          <button class="btn" data-val="1fr 2fr 1fr">1fr 2fr 1fr</button>
+          <button class="btn" data-val="repeat(auto-fit, minmax(120px, 1fr))">auto-fit</button>
+          <button class="btn" data-val="repeat(auto-fill, minmax(100px, 1fr))">auto-fill</button>
+        </div>
+        <div style="margin-top:.5rem">
+          <input class="text-input" id="cols-custom" placeholder="Ej: 1fr 2fr 1fr" value="repeat(3, 1fr)">
+        </div>
+      </div>
+
+      <div class="prop-group">
+        <div class="prop-label">
+          <span class="prop-name">grid-auto-rows</span>
+          <span class="prop-value" id="val-rows">minmax(80px, auto)</span>
+        </div>
+        <div class="btn-group" data-prop="grid-auto-rows">
+          <button class="btn" data-val="60px">60px</button>
+          <button class="btn active" data-val="minmax(80px, auto)">minmax(80,auto)</button>
+          <button class="btn" data-val="100px">100px</button>
+          <button class="btn" data-val="minmax(60px, 1fr)">minmax(60,1fr)</button>
+        </div>
+      </div>
+
+      <div class="prop-group">
+        <div class="prop-label">
+          <span class="prop-name">justify-items</span>
+          <span class="prop-value" id="val-justify-items">stretch</span>
+        </div>
+        <div class="btn-group" data-prop="justify-items">
+          <button class="btn active" data-val="stretch">stretch</button>
+          <button class="btn" data-val="start">start</button>
+          <button class="btn" data-val="end">end</button>
+          <button class="btn" data-val="center">center</button>
+        </div>
+      </div>
+
+      <div class="prop-group">
+        <div class="prop-label">
+          <span class="prop-name">align-items</span>
+          <span class="prop-value" id="val-align-items">stretch</span>
+        </div>
+        <div class="btn-group" data-prop="align-items">
+          <button class="btn active" data-val="stretch">stretch</button>
+          <button class="btn" data-val="start">start</button>
+          <button class="btn" data-val="end">end</button>
+          <button class="btn" data-val="center">center</button>
+        </div>
+      </div>
+
+      <div class="prop-group">
+        <div class="prop-label">
+          <span class="prop-name">justify-content</span>
+          <span class="prop-value" id="val-justify-content">start</span>
+        </div>
+        <div class="btn-group" data-prop="justify-content">
+          <button class="btn active" data-val="start">start</button>
+          <button class="btn" data-val="end">end</button>
+          <button class="btn" data-val="center">center</button>
+          <button class="btn" data-val="space-between">space-between</button>
+          <button class="btn" data-val="space-around">space-around</button>
+          <button class="btn" data-val="space-evenly">space-evenly</button>
+        </div>
+      </div>
+
+      <div class="prop-group">
+        <div class="prop-label">
+          <span class="prop-name">grid-auto-flow</span>
+          <span class="prop-value" id="val-auto-flow">row</span>
+        </div>
+        <div class="btn-group" data-prop="grid-auto-flow">
+          <button class="btn active" data-val="row">row</button>
+          <button class="btn" data-val="column">column</button>
+          <button class="btn" data-val="row dense">row dense</button>
+        </div>
+      </div>
+
+      <div class="prop-group">
+        <div class="prop-label">
+          <span class="prop-name">gap</span>
+          <span class="prop-value" id="val-gap">12px</span>
+        </div>
+        <div class="slider-wrap">
+          <input type="range" id="gap-slider" min="0" max="40" value="12">
+        </div>
+      </div>
+    </div>
+
+    <!-- ÍTEMS -->
+    <div class="panel-section">
+      <div class="panel-section-title">Ítem individual (hijo)</div>
+
+      <div class="item-selector" id="item-selector">
+        <button class="item-sel-btn active" data-item="0">Ítem 1</button>
+        <button class="item-sel-btn" data-item="1">Ítem 2</button>
+        <button class="item-sel-btn" data-item="2">Ítem 3</button>
+        <button class="item-sel-btn" data-item="3">Ítem 4</button>
+        <button class="item-sel-btn" data-item="4">Ítem 5</button>
+      </div>
+
+      <div class="prop-group">
+        <div class="prop-label">
+          <span class="prop-name">grid-column</span>
+          <span class="prop-value" id="val-gcol">auto</span>
+        </div>
+        <div class="btn-group" data-prop="grid-column" data-target="item">
+          <button class="btn active" data-val="auto">auto</button>
+          <button class="btn" data-val="span 2">span 2</button>
+          <button class="btn" data-val="span 3">span 3</button>
+          <button class="btn" data-val="1 / -1">1 / -1</button>
+          <button class="btn" data-val="1 / 3">1 / 3</button>
+        </div>
+      </div>
+
+      <div class="prop-group">
+        <div class="prop-label">
+          <span class="prop-name">grid-row</span>
+          <span class="prop-value" id="val-grow">auto</span>
+        </div>
+        <div class="btn-group" data-prop="grid-row" data-target="item">
+          <button class="btn active" data-val="auto">auto</button>
+          <button class="btn" data-val="span 2">span 2</button>
+          <button class="btn" data-val="span 3">span 3</button>
+          <button class="btn" data-val="1 / 3">1 / 3</button>
+        </div>
+      </div>
+
+      <div class="prop-group">
+        <div class="prop-label">
+          <span class="prop-name">justify-self</span>
+          <span class="prop-value" id="val-jself">stretch</span>
+        </div>
+        <div class="btn-group" data-prop="justify-self" data-target="item">
+          <button class="btn active" data-val="stretch">stretch</button>
+          <button class="btn" data-val="start">start</button>
+          <button class="btn" data-val="end">end</button>
+          <button class="btn" data-val="center">center</button>
+        </div>
+      </div>
+
+      <div class="prop-group">
+        <div class="prop-label">
+          <span class="prop-name">align-self</span>
+          <span class="prop-value" id="val-aself">stretch</span>
+        </div>
+        <div class="btn-group" data-prop="align-self" data-target="item">
+          <button class="btn active" data-val="stretch">stretch</button>
+          <button class="btn" data-val="start">start</button>
+          <button class="btn" data-val="end">end</button>
+          <button class="btn" data-val="center">center</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESET -->
+    <div class="panel-section">
+      <button onclick="resetAll()" style="width:100%;padding:.6rem;background:transparent;border:1px solid rgba(255,255,255,.15);border-radius:5px;color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:.72rem;cursor:pointer;transition:all .15s;" onmouseenter="this.style.borderColor='#E11D48';this.style.color='#F87171'" onmouseleave="this.style.borderColor='rgba(255,255,255,.15)';this.style.color='var(--muted)'">↺ Reset todo</button>
+    </div>
+
+  </aside>
+
+  <!-- ════════ ZONA PRINCIPAL ════════ -->
+  <main class="preview-zone">
+
+    <div class="preview-header">
+      <span class="preview-title">▶ Preview interactivo</span>
+      <div class="items-control">
+        <button onclick="removeItem()">−</button>
+        <span id="item-count">5 ítems</span>
+        <button onclick="addItem()">+</button>
+      </div>
+    </div>
+
+    <div class="grid-container-wrap">
+      <span class="grid-lines-label">grid lines →</span>
+      <div id="grid-container">
+        <div class="grid-item highlighted" data-index="0">1</div>
+        <div class="grid-item" data-index="1">2</div>
+        <div class="grid-item" data-index="2">3</div>
+        <div class="grid-item" data-index="3">4</div>
+        <div class="grid-item" data-index="4">5</div>
+      </div>
+    </div>
+
+    <div class="tooltip-bar" id="tooltip">Selecciona una propiedad para ver su descripción.</div>
+
+    <!-- CSS GENERADO -->
+    <div class="code-block">
+      <button class="copy-btn" id="copy-btn" onclick="copyCSS()">Copiar</button>
+      <pre id="css-output"><span class="selector">.container</span> <span class="punct">{</span>
+  <span class="property">display</span><span class="punct">: </span><span class="value">grid</span><span class="punct">;</span>
+  <span class="property">grid-template-columns</span><span class="punct">: </span><span class="value" id="co-cols">repeat(3, 1fr)</span><span class="punct">;</span>
+  <span class="property">grid-auto-rows</span><span class="punct">: </span><span class="value" id="co-rows">minmax(80px, auto)</span><span class="punct">;</span>
+  <span class="property">justify-items</span><span class="punct">: </span><span class="value" id="co-ji">stretch</span><span class="punct">;</span>
+  <span class="property">align-items</span><span class="punct">: </span><span class="value" id="co-ai">stretch</span><span class="punct">;</span>
+  <span class="property">justify-content</span><span class="punct">: </span><span class="value" id="co-jc">start</span><span class="punct">;</span>
+  <span class="property">grid-auto-flow</span><span class="punct">: </span><span class="value" id="co-flow">row</span><span class="punct">;</span>
+  <span class="property">gap</span><span class="punct">: </span><span class="value" id="co-gap">12px</span><span class="punct">;</span>
+<span class="punct">}</span>
+
+<span class="selector" id="co-item-sel">.item-1</span> <span class="punct">{</span>
+  <span class="property">grid-column</span><span class="punct">: </span><span class="value" id="co-gcol">auto</span><span class="punct">;</span>
+  <span class="property">grid-row</span><span class="punct">: </span><span class="value" id="co-grow">auto</span><span class="punct">;</span>
+  <span class="property">justify-self</span><span class="punct">: </span><span class="value" id="co-jself">stretch</span><span class="punct">;</span>
+  <span class="property">align-self</span><span class="punct">: </span><span class="value" id="co-aself">stretch</span><span class="punct">;</span>
+<span class="punct">}</span></pre>
+    </div>
+
+    <!-- ── EJERCICIOS ── -->
+    <div class="preview-header" style="margin-top:.5rem">
+      <span class="preview-title">▶ Ejercicios de la guía</span>
+    </div>
+
+    <div class="exercises-header">
+      <button class="tab active" data-ex="ex1">Ejercicio 1 — Galería</button>
+      <button class="tab" data-ex="ex2">Ejercicio 2 — Dashboard</button>
+      <button class="tab" data-ex="ex3">Ejercicio 3 — Landing</button>
+    </div>
+
+    <!-- EX1 -->
+    <div class="exercise-panel active" id="ex1">
+      <div class="exercise-demo">
+        <div class="demo-gallery">
+          <div class="demo-gitem demo-gitem--featured">🖼️</div>
+          <div class="demo-gitem">📸</div>
+          <div class="demo-gitem">🌄</div>
+          <div class="demo-gitem demo-gitem--tall">🗼</div>
+          <div class="demo-gitem">🌿</div>
+          <div class="demo-gitem">🌊</div>
+          <div class="demo-gitem">🏙️</div>
+        </div>
+      </div>
+      <div class="code-block" style="border-radius:0;border-top:1px solid rgba(255,255,255,.06)">
+<pre><span class="selector">.gallery</span> <span class="punct">{</span>
+  <span class="property">display</span><span class="punct">: </span><span class="value">grid</span><span class="punct">;</span>
+  <span class="property">grid-template-columns</span><span class="punct">: </span><span class="value">repeat(auto-fit, minmax(250px, 1fr))</span><span class="punct">;</span>
+  <span class="property">grid-auto-rows</span><span class="punct">: </span><span class="value">250px</span><span class="punct">;</span>
+  <span class="property">gap</span><span class="punct">: </span><span class="value">1rem</span><span class="punct">;</span>
+<span class="punct">}</span>
+<span class="selector">.gallery__item--featured</span> <span class="punct">{</span>
+  <span class="property">grid-column</span><span class="punct">: </span><span class="value">span 2</span><span class="punct">;</span>
+  <span class="property">grid-row</span><span class="punct">: </span><span class="value">span 2</span><span class="punct">;</span>
+<span class="punct">}</span>
+<span class="selector">.gallery__item--tall</span> <span class="punct">{</span>
+  <span class="property">grid-row</span><span class="punct">: </span><span class="value">span 2</span><span class="punct">;</span>
+<span class="punct">}</span></pre>
+      </div>
+    </div>
+
+    <!-- EX2 -->
+    <div class="exercise-panel" id="ex2">
+      <div class="exercise-demo">
+        <div class="demo-dashboard">
+          <header class="ddash-header">
+            <strong>Panel de Control</strong>
+            <span>admin@empresa.com</span>
+          </header>
+          <nav class="ddash-sidebar">
+            <ul>
+              <li><a href="#">Dashboard</a></li>
+              <li><a href="#">Usuarios</a></li>
+              <li><a href="#">Productos</a></li>
+              <li><a href="#">Reportes</a></li>
+              <li><a href="#">Config</a></li>
+            </ul>
+          </nav>
+          <main class="ddash-content">
+            <div class="ddash-stats">
+              <div class="ddash-card"><h3>1,234</h3><p>Usuarios</p></div>
+              <div class="ddash-card" style="border-color:var(--teal)"><h3>$45k</h3><p>Ventas</p></div>
+              <div class="ddash-card" style="border-color:#92400E"><h3>89</h3><p>Pedidos</p></div>
+              <div class="ddash-card" style="border-color:#065F46"><h3>99.9%</h3><p>Uptime</p></div>
+            </div>
+          </main>
+        </div>
+      </div>
+      <div class="code-block" style="border-radius:0;border-top:1px solid rgba(255,255,255,.06)">
+<pre><span class="selector">.dashboard</span> <span class="punct">{</span>
+  <span class="property">display</span><span class="punct">: </span><span class="value">grid</span><span class="punct">;</span>
+  <span class="property">grid-template-columns</span><span class="punct">: </span><span class="value">250px 1fr</span><span class="punct">;</span>
+  <span class="property">grid-template-rows</span><span class="punct">: </span><span class="value">60px 1fr</span><span class="punct">;</span>
+  <span class="property">grid-template-areas</span><span class="punct">:</span>
+    <span class="value">"sidebar header"</span>
+    <span class="value">"sidebar content"</span><span class="punct">;</span>
+<span class="punct">}</span>
+<span class="selector">.dashboard__header</span>  <span class="punct">{</span> <span class="property">grid-area</span><span class="punct">: </span><span class="value">header</span><span class="punct">; }</span>
+<span class="selector">.dashboard__sidebar</span> <span class="punct">{</span> <span class="property">grid-area</span><span class="punct">: </span><span class="value">sidebar</span><span class="punct">; }</span>
+<span class="selector">.dashboard__content</span> <span class="punct">{</span> <span class="property">grid-area</span><span class="punct">: </span><span class="value">content</span><span class="punct">; }</span>
+<span class="comment">/* Grid anidado para tarjetas */</span>
+<span class="selector">.stats</span> <span class="punct">{</span>
+  <span class="property">display</span><span class="punct">: </span><span class="value">grid</span><span class="punct">;</span>
+  <span class="property">grid-template-columns</span><span class="punct">: </span><span class="value">repeat(auto-fit, minmax(200px, 1fr))</span><span class="punct">;</span>
+  <span class="property">gap</span><span class="punct">: </span><span class="value">1.5rem</span><span class="punct">;</span>
+<span class="punct">}</span></pre>
+      </div>
+    </div>
+
+    <!-- EX3 -->
+    <div class="exercise-panel" id="ex3">
+      <div class="exercise-demo">
+        <div class="demo-landing">
+          <header class="dl-nav">
+            <div class="logo">MiApp</div>
+            <nav><a href="#">Features</a><a href="#">Pricing</a><a href="#">Contact</a></nav>
+          </header>
+          <section class="dl-hero">
+            <h1>Construye algo increíble</h1>
+            <p>Plataforma moderna para desarrolladores</p>
+            <button>Comenzar Gratis</button>
+          </section>
+          <section class="dl-features">
+            <div class="dl-feat"><h3>⚡ Rápido</h3><p>Rendimiento optimizado</p></div>
+            <div class="dl-feat"><h3>🔒 Seguro</h3><p>Encriptación E2E</p></div>
+            <div class="dl-feat"><h3>📈 Escalable</h3><p>Crece con tu negocio</p></div>
+          </section>
+          <footer class="dl-footer">© 2026 MiApp. Todos los derechos reservados.</footer>
+        </div>
+      </div>
+      <div class="code-block" style="border-radius:0;border-top:1px solid rgba(255,255,255,.06)">
+<pre><span class="selector">.landing</span> <span class="punct">{</span>
+  <span class="property">display</span><span class="punct">: </span><span class="value">grid</span><span class="punct">;</span>
+  <span class="property">grid-template-columns</span><span class="punct">: </span><span class="value">1fr min(1200px, 90%) 1fr</span><span class="punct">;</span>
+  <span class="property">grid-template-areas</span><span class="punct">:</span>
+    <span class="value">". nav ."</span>
+    <span class="value">". hero ."</span>
+    <span class="value">". features ."</span>
+    <span class="value">"footer footer footer"</span><span class="punct">;</span>
+<span class="punct">}</span>
+<span class="comment">/* El "." = celda vacía (márgenes automáticos) */</span>
+<span class="comment">/* footer se extiende por las 3 columnas     */</span>
+<span class="selector">.landing__features</span> <span class="punct">{</span>
+  <span class="property">grid-area</span><span class="punct">: </span><span class="value">features</span><span class="punct">;</span>
+  <span class="property">display</span><span class="punct">: </span><span class="value">grid</span><span class="punct">;</span>
+  <span class="property">grid-template-columns</span><span class="punct">: </span><span class="value">repeat(auto-fit, minmax(250px, 1fr))</span><span class="punct">;</span>
+<span class="punct">}</span></pre>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  // ─── STATE ───
+  const state = {
+    container: {
+      'grid-template-columns': 'repeat(3, 1fr)',
+      'grid-auto-rows': 'minmax(80px, auto)',
+      'justify-items': 'stretch',
+      'align-items': 'stretch',
+      'justify-content': 'start',
+      'grid-auto-flow': 'row',
+      'gap': '12px'
+    },
+    items: Array(8).fill(null).map(() => ({
+      'grid-column': 'auto',
+      'grid-row': 'auto',
+      'justify-self': 'stretch',
+      'align-self': 'stretch'
+    })),
+    selectedItem: 0
+  };
+
+  const descriptions = {
+    'grid-template-columns': {
+      'repeat(2, 1fr)': 'Dos columnas de igual ancho (1fr cada una).',
+      'repeat(3, 1fr)': 'Tres columnas iguales. El espacio disponible se divide en 3 fracciones.',
+      'repeat(4, 1fr)': 'Cuatro columnas iguales.',
+      '200px 1fr': 'Primera columna fija de 200px, segunda ocupa el espacio restante.',
+      '1fr 2fr 1fr': 'Tres columnas con proporción 1:2:1. La central es el doble de las laterales.',
+      'repeat(auto-fit, minmax(120px, 1fr))': '⭐ El snippet mágico: columnas responsivas sin media queries. Mínimo 120px, máximo 1fr.',
+      'repeat(auto-fill, minmax(100px, 1fr))': 'auto-fill: crea tantos tracks como quepan, manteniendo el espacio aunque estén vacíos.'
+    },
+    'grid-auto-rows': {
+      '60px': 'Filas implícitas de altura fija 60px.',
+      'minmax(80px, auto)': 'Filas con mínimo 80px; crecen si el contenido lo requiere.',
+      '100px': 'Filas implícitas de 100px de altura fija.',
+      'minmax(60px, 1fr)': 'Filas de mínimo 60px que se distribuyen el espacio disponible.'
+    },
+    'justify-items': {
+      'stretch': 'Los ítems se estiran horizontalmente para llenar su celda (default).',
+      'start': 'Los ítems se alinean al inicio de su celda (izquierda).',
+      'end': 'Los ítems se alinean al final de su celda (derecha).',
+      'center': 'Los ítems se centran horizontalmente en su celda.'
+    },
+    'align-items': {
+      'stretch': 'Los ítems se estiran verticalmente para llenar su celda (default).',
+      'start': 'Los ítems se alinean arriba dentro de su celda.',
+      'end': 'Los ítems se alinean abajo dentro de su celda.',
+      'center': 'Los ítems se centran verticalmente en su celda.'
+    },
+    'justify-content': {
+      'start': 'El grid completo se alinea al inicio del contenedor.',
+      'end': 'El grid completo se alinea al final del contenedor.',
+      'center': 'El grid se centra horizontalmente.',
+      'space-between': 'Columnas: primera al inicio, última al final, espacio igual entre ellas.',
+      'space-around': 'Espacio igual alrededor de cada columna.',
+      'space-evenly': 'Espacio idéntico entre todas las columnas y los bordes.'
+    },
+    'grid-auto-flow': {
+      'row': 'Los ítems se colocan llenando filas de izquierda a derecha (default).',
+      'column': 'Los ítems se colocan llenando columnas de arriba a abajo.',
+      'row dense': '⚠️ Igual que row pero llena huecos. Puede alterar el orden visual.'
+    },
+    'grid-column': {
+      'auto': 'Posición automática según el flujo del grid.',
+      'span 2': 'El ítem abarca 2 columnas.',
+      'span 3': 'El ítem abarca 3 columnas.',
+      '1 / -1': 'El ítem va desde la primera hasta la última línea (ancho completo).',
+      '1 / 3': 'El ítem va desde la línea 1 hasta la línea 3 (abarca 2 columnas).'
+    },
+    'grid-row': {
+      'auto': 'Posición de fila automática.',
+      'span 2': 'El ítem abarca 2 filas.',
+      'span 3': 'El ítem abarca 3 filas.',
+      '1 / 3': 'El ítem va desde la línea de fila 1 hasta la 3.'
+    },
+    'justify-self': {
+      'stretch': 'Este ítem se estira horizontalmente (override de justify-items).',
+      'start': 'Este ítem se alinea a la izquierda de su celda.',
+      'end': 'Este ítem se alinea a la derecha de su celda.',
+      'center': 'Este ítem se centra horizontalmente en su celda.'
+    },
+    'align-self': {
+      'stretch': 'Este ítem se estira verticalmente (override de align-items).',
+      'start': 'Este ítem se alinea arriba en su celda.',
+      'end': 'Este ítem se alinea abajo en su celda.',
+      'center': 'Este ítem se centra verticalmente en su celda.'
+    }
+  };
+
+  const labelMap = {
+    'grid-template-columns': 'val-cols',
+    'grid-auto-rows':        'val-rows',
+    'justify-items':         'val-justify-items',
+    'align-items':           'val-align-items',
+    'justify-content':       'val-justify-content',
+    'grid-auto-flow':        'val-auto-flow',
+    'grid-column':           'val-gcol',
+    'grid-row':              'val-grow',
+    'justify-self':          'val-jself',
+    'align-self':            'val-aself'
+  };
+
+  function applyContainer() {
+    const c = document.getElementById('grid-container');
+    c.style.gridTemplateColumns = state.container['grid-template-columns'];
+    c.style.gridAutoRows        = state.container['grid-auto-rows'];
+    c.style.justifyItems        = state.container['justify-items'];
+    c.style.alignItems          = state.container['align-items'];
+    c.style.justifyContent      = state.container['justify-content'];
+    c.style.gridAutoFlow        = state.container['grid-auto-flow'];
+    c.style.gap                 = state.container['gap'];
+    updateCode();
+  }
+
+  function applyItem(idx) {
+    const items = document.querySelectorAll('.grid-item');
+    if (!items[idx]) return;
+    const s = state.items[idx];
+    items[idx].style.gridColumn  = s['grid-column'];
+    items[idx].style.gridRow     = s['grid-row'];
+    items[idx].style.justifySelf = s['justify-self'];
+    items[idx].style.alignSelf   = s['align-self'];
+    updateCode();
+  }
+
+  function updateCode() {
+    const s = state.container;
+    document.getElementById('co-cols').textContent  = s['grid-template-columns'];
+    document.getElementById('co-rows').textContent  = s['grid-auto-rows'];
+    document.getElementById('co-ji').textContent    = s['justify-items'];
+    document.getElementById('co-ai').textContent    = s['align-items'];
+    document.getElementById('co-jc').textContent    = s['justify-content'];
+    document.getElementById('co-flow').textContent  = s['grid-auto-flow'];
+    document.getElementById('co-gap').textContent   = s['gap'];
+    const i = state.items[state.selectedItem];
+    document.getElementById('co-item-sel').textContent = `.item-${state.selectedItem+1}`;
+    document.getElementById('co-gcol').textContent  = i['grid-column'];
+    document.getElementById('co-grow').textContent  = i['grid-row'];
+    document.getElementById('co-jself').textContent = i['justify-self'];
+    document.getElementById('co-aself').textContent = i['align-self'];
+  }
+
+  // ─── BUTTON GROUPS ───
+  document.querySelectorAll('.btn-group').forEach(group => {
+    group.addEventListener('click', e => {
+      const btn = e.target.closest('.btn');
+      if (!btn) return;
+      const prop   = group.dataset.prop;
+      const target = group.dataset.target;
+      const val    = btn.dataset.val;
+
+      group.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      const lel = document.getElementById(labelMap[prop]);
+      if (lel) lel.textContent = val;
+
+      if (target === 'item') {
+        state.items[state.selectedItem][prop] = val;
+        applyItem(state.selectedItem);
+      } else {
+        state.container[prop] = val;
+        if (prop === 'grid-template-columns') {
+          document.getElementById('cols-custom').value = val;
+        }
+        applyContainer();
+      }
+
+      if (descriptions[prop]?.[val]) {
+        document.getElementById('tooltip').textContent = `${prop}: ${val} — ${descriptions[prop][val]}`;
+      }
+    });
+  });
+
+  // ─── CUSTOM COLUMNS INPUT ───
+  document.getElementById('cols-custom').addEventListener('input', function () {
+    const val = this.value.trim();
+    if (!val) return;
+    state.container['grid-template-columns'] = val;
+    document.getElementById('val-cols').textContent = val;
+    document.getElementById('grid-container').style.gridTemplateColumns = val;
+    // deactivate preset buttons
+    document.querySelector('[data-prop="grid-template-columns"]')
+      .querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
+    updateCode();
+  });
+
+  // ─── GAP SLIDER ───
+  document.getElementById('gap-slider').addEventListener('input', function () {
+    const v = this.value + 'px';
+    state.container['gap'] = v;
+    document.getElementById('val-gap').textContent = v;
+    applyContainer();
+  });
+
+  // ─── ITEM SELECTOR ───
+  document.getElementById('item-selector').addEventListener('click', e => {
+    const btn = e.target.closest('.item-sel-btn');
+    if (!btn) return;
+    state.selectedItem = parseInt(btn.dataset.item);
+    document.querySelectorAll('.item-sel-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    document.querySelectorAll('.grid-item').forEach((it, i) => {
+      it.classList.toggle('highlighted', i === state.selectedItem);
+    });
+    syncItemPanel(state.items[state.selectedItem]);
+    updateCode();
+  });
+
+  function syncItemPanel(it) {
+    const props = ['grid-column', 'grid-row', 'justify-self', 'align-self'];
+    props.forEach(prop => {
+      const val = it[prop];
+      const group = document.querySelector(`.btn-group[data-prop="${prop}"]`);
+      if (group) group.querySelectorAll('.btn').forEach(b => b.classList.toggle('active', b.dataset.val === val));
+      const lel = document.getElementById(labelMap[prop]);
+      if (lel) lel.textContent = val;
+    });
+  }
+
+  // ─── ADD / REMOVE ITEMS ───
+  const colors = ['#2D5F8A','#0F766E','#92400E','#1E3A5F','#475569','#065F46','#7C3AED','#BE123C'];
+  let itemCount = 5;
+
+  function addItem() {
+    if (itemCount >= 8) return;
+    const c = document.getElementById('grid-container');
+    const el = document.createElement('div');
+    el.className = 'grid-item';
+    el.dataset.index = itemCount;
+    el.textContent = itemCount + 1;
+    el.style.background = colors[itemCount];
+    c.appendChild(el);
+    itemCount++;
+    document.getElementById('item-count').textContent = itemCount + ' ítems';
+  }
+
+  function removeItem() {
+    if (itemCount <= 1) return;
+    const c = document.getElementById('grid-container');
+    c.removeChild(c.lastChild);
+    itemCount--;
+    document.getElementById('item-count').textContent = itemCount + ' ítems';
+    if (state.selectedItem >= itemCount) {
+      state.selectedItem = itemCount - 1;
+      document.querySelectorAll('.item-sel-btn').forEach((b, i) => {
+        b.classList.toggle('active', i === state.selectedItem);
+      });
+    }
+  }
+
+  // ─── TABS ───
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.exercise-panel').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById(tab.dataset.ex).classList.add('active');
+    });
+  });
+
+  // ─── COPY ───
+  function copyCSS() {
+    const s = state.container;
+    const i = state.items[state.selectedItem];
+    const txt = `.container {\n  display: grid;\n  grid-template-columns: ${s['grid-template-columns']};\n  grid-auto-rows: ${s['grid-auto-rows']};\n  justify-items: ${s['justify-items']};\n  align-items: ${s['align-items']};\n  justify-content: ${s['justify-content']};\n  grid-auto-flow: ${s['grid-auto-flow']};\n  gap: ${s['gap']};\n}\n\n.item-${state.selectedItem+1} {\n  grid-column: ${i['grid-column']};\n  grid-row: ${i['grid-row']};\n  justify-self: ${i['justify-self']};\n  align-self: ${i['align-self']};\n}`;
+    navigator.clipboard.writeText(txt).then(() => {
+      const btn = document.getElementById('copy-btn');
+      btn.textContent = '¡Copiado!'; btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'Copiar'; btn.classList.remove('copied'); }, 2000);
+    });
+  }
+
+  // ─── RESET ───
+  function resetAll() {
+    state.container = {
+      'grid-template-columns': 'repeat(3, 1fr)',
+      'grid-auto-rows': 'minmax(80px, auto)',
+      'justify-items': 'stretch', 'align-items': 'stretch',
+      'justify-content': 'start', 'grid-auto-flow': 'row', 'gap': '12px'
+    };
+    state.items = Array(8).fill(null).map(() => ({
+      'grid-column':'auto','grid-row':'auto','justify-self':'stretch','align-self':'stretch'
+    }));
+    state.selectedItem = 0;
+
+    document.getElementById('cols-custom').value = 'repeat(3, 1fr)';
+    document.getElementById('gap-slider').value = 12;
+    document.getElementById('val-gap').textContent = '12px';
+
+    document.querySelectorAll('.grid-item').forEach((el, i) => {
+      el.style.gridColumn = ''; el.style.gridRow = '';
+      el.style.justifySelf = ''; el.style.alignSelf = '';
+      el.classList.toggle('highlighted', i === 0);
+    });
+
+    document.querySelectorAll('.btn-group').forEach(g => {
+      const target = g.dataset.target;
+      const prop   = g.dataset.prop;
+      const def = target === 'item'
+        ? state.items[0][prop]
+        : state.container[prop];
+      g.querySelectorAll('.btn').forEach(b => b.classList.toggle('active', b.dataset.val === def));
+    });
+
+    document.querySelectorAll('.item-sel-btn').forEach((b,i) => b.classList.toggle('active', i===0));
+    syncItemPanel(state.items[0]);
+    applyContainer();
+    document.getElementById('tooltip').textContent = 'Selecciona una propiedad para ver su descripción.';
+  }
+
+  // ─── INIT ───
+  applyContainer();
+</script>
+</body>
+</html>
