@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        :root {
+            --item1: #2D5F8A;
+            --item2: #0F766E;
+            --item3: #92400E;
+            --item4: #1E3A5F;
+            --item5: #475569;
+        }
+
+        .flex-container {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: nowrap;
+            justify-content: flex-start;
+            align-items: stretch;
+            align-content: stretch;
+            gap: 0px;
+        }
+
+        .flex-item {
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: .8rem;
+            font-weight: 700;
+            color: rgba(255, 255, 255, .9);
+            min-width: 60px;
+            min-height: 60px;
+            padding: .8rem;
+        }
+
+        .flex-item:nth-child(1) {
+            background: var(--item1);
+            height: 80px;
+        }
+
+        .flex-item:nth-child(2) {
+            background: var(--item2);
+            height: 280px;
+        }
+
+        .flex-item:nth-child(3) {
+            background: var(--item3);
+            height: 100px;
+        }
+
+        .flex-item:nth-child(4) {
+            background: var(--item4);
+            height: 70px;
+        }
+
+        .flex-item:nth-child(5) {
+            background: var(--item5);
+        }
+    </style>
+</head>
+
+<body>
+    <section class="flex-container">
+        <article class="flex-item">1</article>
+        <article class="flex-item">2</article>
+        <article class="flex-item">3</article>
+    </section>
+</body>
+
+</html>
