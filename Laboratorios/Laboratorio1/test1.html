@@ -6,6 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         :root {
             --item1: #2D5F8A;
             --item2: #0F766E;
@@ -17,11 +22,13 @@
         .flex-container {
             display: flex;
             flex-direction: row;
-            flex-wrap: nowrap;
+            flex-wrap: wrap;
             justify-content: flex-start;
-            align-items: stretch;
-            align-content: stretch;
+            align-items:center;
+            align-content:space-evenly;
             gap: 0px;
+            border: 1px dashed black;
+            height: 600px;
         }
 
         .flex-item {
@@ -30,36 +37,63 @@
             align-items: center;
             justify-content: center;
             font-family: 'JetBrains Mono', monospace;
-            font-size: .8rem;
             font-weight: 700;
             color: rgba(255, 255, 255, .9);
-            min-width: 60px;
-            min-height: 60px;
-            padding: .8rem;
+            
+            padding: 3rem;
+            width: 120px;
         }
 
         .flex-item:nth-child(1) {
             background: var(--item1);
-            height: 80px;
+            /*
+            flex-grow: 1;
+            flex-basis: 50%;
+            order: 5;
+            */
         }
 
         .flex-item:nth-child(2) {
             background: var(--item2);
-            height: 280px;
+            height: 150px;
+            /*
+            flex-grow: 1;
+            flex-basis: 50%;
+            order: 4;
+            */
         }
 
         .flex-item:nth-child(3) {
             background: var(--item3);
-            height: 100px;
+            /*
+            flex-grow: 1;
+            flex-basis: 33%;
+            order: 3;
+            */
         }
 
         .flex-item:nth-child(4) {
             background: var(--item4);
-            height: 70px;
+            /*
+            flex-grow: 1;
+            flex-basis: 33%;
+            height: 200px;
+            order: 2;
+            */
         }
 
         .flex-item:nth-child(5) {
             background: var(--item5);
+            /*
+            flex-grow: 1;
+            flex-basis: 33%;
+            align-self: start;
+            order: 1;
+            */
+            /*
+            flex-shrink: 0;
+            width: 200px;
+            */
         }
     </style>
 </head>
@@ -69,6 +103,8 @@
         <article class="flex-item">1</article>
         <article class="flex-item">2</article>
         <article class="flex-item">3</article>
+        <article class="flex-item">4</article>
+        <article class="flex-item">5</article>
     </section>
 </body>
 
