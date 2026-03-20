@@ -6,9 +6,11 @@
     "header header header"
     "sidebar content aside"
     "footer footer footer";
+  gap: 20px;
+  height: 100vh;
 }
 
-.container *{
+.container * {
   display: flex;
   justify-content: center;
   align-items: center;
