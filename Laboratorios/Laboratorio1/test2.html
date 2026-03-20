@@ -24,9 +24,9 @@
             flex-direction: row;
             flex-wrap: wrap;
             justify-content:space-evenly;
-            align-items: baseline;
+            align-items: center;
             align-content:space-around;
-            gap: 2%;
+            gap: 0px;
             border: 1px dashed black;
             height: 400px;
         }
@@ -38,59 +38,11 @@
             justify-content: center;
             font-family: 'JetBrains Mono', monospace;
             font-weight: 700;
-            color: rgba(255, 255, 255, .9);
+            color:black;
             
-            /*
             padding: 0.5rem;
-            width: 400px;
-            */
-        }
-
-        .flex-item:nth-child(1) {
-            background: var(--item1);
-            
-            flex-grow: 1;
-            flex-basis: 49%;
-            order: 5;
-        }
-
-        .flex-item:nth-child(2) {
-            background: var(--item2);
-            height: 150px;
-            
-            flex-grow: 1;
-            flex-basis: 49%;
-            order: 4;
-        }
-
-        .flex-item:nth-child(3) {
-            background: var(--item3);
-            
-            flex-grow: 1;
-            flex-basis: 30%;
-            order: 3;
-        }
-
-        .flex-item:nth-child(4) {
-            background: var(--item4);
-            
-            flex-grow: 1;
-            flex-basis: 30%;
-            height: 200px;
-            order: 2;
-        }
-
-        .flex-item:nth-child(5) {
-            background: var(--item5);
-            
-            flex-grow: 1;
-            flex-basis: 30%;
-            align-self:flex-end;
-            order: 1;
-            /*
-            flex-shrink: 0;
-            width: 200px;
-            */
+            background-color: orange;
+            width: 400px;            
         }
     </style>
 </head>
@@ -102,6 +54,10 @@
         <article class="flex-item">3</article>
         <article class="flex-item">4</article>
         <article class="flex-item">5</article>
+        <article class="flex-item">6</article>
+        <article class="flex-item">7</article>
+        <article class="flex-item">8</article>
+        <article class="flex-item">9</article>
     </section>
 </body>
 
